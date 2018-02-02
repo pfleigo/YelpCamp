@@ -2,9 +2,11 @@ var express     = require("express"),
     app         = express(),
     bodyParser  = require("body-parser"),
     mongoose    = require("mongoose"),
+    flash       = require("connect-flash"),
     passport    = require("passport"),
     User        = require("./models/user"),
     LocalStrategy = require("passport-local"),
+    methodOverride = require("method-override"),    
     passportLocalMongoose = require("passport-local-mongoose")
     Campground  = require("./models/campground"),
     seedDB      = require("./seeds"),
@@ -19,6 +21,8 @@ mongoose.connect("mongodb://127.0.0.1/yelp_camp");
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
+app.use(methodOverride("_method"));
+app.use(flash());
 // seedDB();  //seed the database
 
 //PASSPORT CONFIGURATION
@@ -37,6 +41,8 @@ passport.deserializeUser(User.deserializeUser());
 //middleware checking if there is a logged in user for every route
 app.use(function(req, res, next){
     res.locals.currentUser = req.user;
+    res.locals.error = req.flash("error");
+    res.locals.success = req.flash("success");
     next();
 });
 
